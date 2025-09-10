@@ -261,3 +261,50 @@ PrintMotd no
 AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 EOF
+
+
+
+# Eliminar claves viejas (pueden estar corruptas)
+rm -f /etc/ssh/ssh_host_*
+
+# Generar nuevas claves
+ssh-keygen -A
+
+
+# Verificar que la configuración es válida
+sshd -t
+
+# Si no hay errores, iniciar SSH
+systemctl start ssh
+systemctl enable ssh
+systemctl status ssh
+
+
+
+
+
+# Ejecuta todo esto en secuencia:
+sshd -t
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
+rm -f /etc/ssh/ssh_host_*
+ssh-keygen -A
+
+cat > /etc/ssh/sshd_config << EOF
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding yes
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+EOF
+
+sshd -t
+systemctl start ssh
+systemctl enable ssh
+systemctl status ssh
+ss -tlnp | grep :22
